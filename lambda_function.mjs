@@ -62,6 +62,7 @@ const handlePostRequest = async (event, context) => {
       id: context.awsRequestId,
       name,
       completed,
+      createdAt: new Date().toISOString(),
     },
   });
 

@@ -1,0 +1,31 @@
+<h1>Task Manager</h1>
+
+<form id="task-form">
+    <input type="text" id="task-name" placeholder="Enter a new task..." required>
+    <input type="hidden" id="task-id">
+    <button type="submit">Add Task</button>
+</form>
+
+<div id="loading-spinner" class="loading-spinner hidden">
+    <div class="spinner"></div>
+    <p>Loading...</p>
+</div>
+
+<ul id="task-list">
+    <% if (tasks && tasks.length > 0) { %>
+        <% tasks.forEach(function(task) { %>
+            <li>
+                <div class="task-content">
+                    <span><%= task.name %></span>
+                    <span class="task-status"><%= task.completed ? "✅" : "❌" %></span>
+                </div>
+                <div class="task-buttons">
+                    <button class="edit-btn" onclick="editTask('<%= task.id %>', '<%= task.name %>', '<%= task.completed %>')">Edit</button>
+                    <button class="delete-btn" onclick="deleteTask('<%= task.id %>')">Delete</button>
+                </div>
+            </li>
+        <% }); %>
+    <% } else { %>
+        <li>No tasks found</li>
+    <% } %>
+</ul> 

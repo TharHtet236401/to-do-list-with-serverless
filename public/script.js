@@ -1,5 +1,5 @@
 const API_URL = "/tasks";
-
+console.log(API_URL);
 // Loading spinner functions
 function showLoading() {
     document.getElementById('loading-spinner').classList.remove('hidden');
@@ -82,19 +82,19 @@ document.getElementById("task-form").addEventListener("submit", async (e) => {
     
     try {
         showLoading();
-        const id = document.getElementById("task-id").value || crypto.randomUUID();
         const name = document.getElementById("task-name").value;
-        const completed = false;
         
-        await fetch(API_URL, {
-            method: id ? "PUT" : "POST",
+        const response = await fetch(API_URL, {
+            method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id, name, completed })
+            body: JSON.stringify({ name })
         });
 
-        document.getElementById("task-id").value = "";
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         document.getElementById("task-name").value = "";
-        
         await fetchTasks();
     } catch (error) {
         console.error('Error saving task:', error);
