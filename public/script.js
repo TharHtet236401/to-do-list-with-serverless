@@ -1,8 +1,20 @@
 const API_URL = "/tasks";
 
+// Loading spinner functions
+function showLoading() {
+    document.getElementById('loading-spinner').classList.remove('hidden');
+    document.getElementById('task-list').classList.add('hidden');
+}
+
+function hideLoading() {
+    document.getElementById('loading-spinner').classList.add('hidden');
+    document.getElementById('task-list').classList.remove('hidden');
+}
+
 // Fetch and display tasks
 async function fetchTasks() {
     try {
+        showLoading();
         const res = await fetch(API_URL);
         if (!res.ok) {
             throw new Error(`HTTP error! status: ${res.status}`);
@@ -22,17 +34,45 @@ async function fetchTasks() {
 
         tasksArray.forEach(task => {
             const li = document.createElement("li");
-            li.innerHTML = `
-                ${task.name} - ${task.completed ? "✅" : "❌"}
-                <button onclick="editTask('${task.id}', '${task.name}', '${task.completed}')">Edit</button>
-                <button onclick="deleteTask('${task.id}')">Delete</button>
-            `;
+            const taskContent = document.createElement("div");
+            taskContent.className = "task-content";
+            
+            const taskName = document.createElement("span");
+            taskName.textContent = task.name;
+            
+            const taskStatus = document.createElement("span");
+            taskStatus.className = "task-status";
+            taskStatus.textContent = task.completed ? "✅" : "❌";
+            
+            taskContent.appendChild(taskName);
+            taskContent.appendChild(taskStatus);
+            
+            const buttonContainer = document.createElement("div");
+            buttonContainer.className = "task-buttons";
+            
+            const editButton = document.createElement("button");
+            editButton.className = "edit-btn";
+            editButton.textContent = "Edit";
+            editButton.onclick = () => editTask(task.id, task.name, task.completed);
+            
+            const deleteButton = document.createElement("button");
+            deleteButton.className = "delete-btn";
+            deleteButton.textContent = "Delete";
+            deleteButton.onclick = () => deleteTask(task.id);
+            
+            buttonContainer.appendChild(editButton);
+            buttonContainer.appendChild(deleteButton);
+            
+            li.appendChild(taskContent);
+            li.appendChild(buttonContainer);
             taskList.appendChild(li);
         });
     } catch (error) {
         console.error('Error fetching tasks:', error);
         const taskList = document.getElementById("task-list");
         taskList.innerHTML = `<li style="color: red;">Error loading tasks: ${error.message}</li>`;
+    } finally {
+        hideLoading();
     }
 }
 
@@ -40,20 +80,28 @@ async function fetchTasks() {
 document.getElementById("task-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     
-    const id = document.getElementById("task-id").value || crypto.randomUUID();
-    const name = document.getElementById("task-name").value;
-    const completed = false;
-    
-    await fetch(API_URL, {
-        method: id ? "PUT" : "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, name, completed })
-    });
+    try {
+        showLoading();
+        const id = document.getElementById("task-id").value || crypto.randomUUID();
+        const name = document.getElementById("task-name").value;
+        const completed = false;
+        
+        await fetch(API_URL, {
+            method: id ? "PUT" : "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id, name, completed })
+        });
 
-    document.getElementById("task-id").value = "";
-    document.getElementById("task-name").value = "";
-    
-    fetchTasks();
+        document.getElementById("task-id").value = "";
+        document.getElementById("task-name").value = "";
+        
+        await fetchTasks();
+    } catch (error) {
+        console.error('Error saving task:', error);
+        const taskList = document.getElementById("task-list");
+        taskList.innerHTML = `<li style="color: red;">Error saving task: ${error.message}</li>`;
+        hideLoading();
+    }
 });
 
 // Edit task
@@ -64,13 +112,21 @@ function editTask(id, name, completed) {
 
 // Delete task
 async function deleteTask(id) {
-    await fetch(API_URL, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id })
-    });
+    try {
+        showLoading();
+        await fetch(API_URL, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id })
+        });
 
-    fetchTasks();
+        await fetchTasks();
+    } catch (error) {
+        console.error('Error deleting task:', error);
+        const taskList = document.getElementById("task-list");
+        taskList.innerHTML = `<li style="color: red;">Error deleting task: ${error.message}</li>`;
+        hideLoading();
+    }
 }
 
 // Load tasks on page load

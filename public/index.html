@@ -7,15 +7,22 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Task Manager</h1>
-    
-    <form id="task-form">
-        <input type="text" id="task-name" placeholder="Task Name" required>
-        <input type="hidden" id="task-id">
-        <button type="submit">Add Task</button>
-    </form>
+    <div class="container">
+        <h1>Task Manager</h1>
+        
+        <form id="task-form">
+            <input type="text" id="task-name" placeholder="Enter a new task..." required>
+            <input type="hidden" id="task-id">
+            <button type="submit">Add Task</button>
+        </form>
 
-    <ul id="task-list"></ul>
+        <div id="loading-spinner" class="loading-spinner hidden">
+            <div class="spinner"></div>
+            <p>Loading...</p>
+        </div>
+
+        <ul id="task-list"></ul>
+    </div>
 
     <script src="script.js"></script>
 </body>
